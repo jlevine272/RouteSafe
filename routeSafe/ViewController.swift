@@ -9,7 +9,6 @@
 import UIKit
 import MapKit
 import CoreLocation
-import CoreGraphics
 
 protocol HandleMapSearch {
     func dropPinZoomIn(placemark:MKPlacemark)
@@ -64,29 +63,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         let renderer = MKPolylineRenderer(polyline: overlay as! MKPolyline)
         renderer.strokeColor = UIColor.blue
         return renderer
-    }
-    func makeLeg(start: CLLocation, end: CLLocation) {
-        let request = MKDirections.Request()
-        let startCoord = start.coordinate
-        let endCoord = end.coordinate
-        
-        request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: startCoord.latitude, longitude: startCoord.longitude), addressDictionary: nil))
-        
-        request.destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: endCoord.latitude, longitude: endCoord.longitude), addressDictionary: nil))
-        
-        request.requestsAlternateRoutes = false
-        request.transportType = .automobile
-
-        let directions = MKDirections(request: request)
-
-        directions.calculate { [unowned self] response, error in
-            guard let unwrappedResponse = response else { return }
-
-            for route in unwrappedResponse.routes {
-                self.mapView.addOverlay(route.polyline)
-                self.mapView.setVisibleMapRect(route.polyline.boundingMapRect, animated: true)
-            }
-        }
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -167,9 +143,7 @@ extension ViewController: HandleMapSearch {
 extension ViewController {
     func sendEndPoints(params: [[Double]]) {
         print("sent")
-        //var stanford = CLLocation(latitude: 37.42681121826172, longitude: -122.1704330444336)
-        //var cal = CLLocation(latitude: 37.8718992, longitude: -122.2585399)
-        //var reservoir = CLLocation(latitude: 37.79467605, longitude: -122.39698655)
+        
         
         var result = [[[37.42681121826172, -122.1704330444336],[37.8718992, -122.2585399]],[[37.8718992, -122.2585399],[37.79467605, -122.39698655]]]
         
@@ -180,6 +154,29 @@ extension ViewController {
             var location1 = CLLocation(latitude: pair[0][0], longitude: pair[0][1])
             var location2 = CLLocation(latitude: pair[1][0], longitude: pair[1][1])
             makeLeg(start: location1, end: location2)
+        }
+    }
+    func makeLeg(start: CLLocation, end: CLLocation) {
+        let request = MKDirections.Request()
+        let startCoord = start.coordinate
+        let endCoord = end.coordinate
+        
+        request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: startCoord.latitude, longitude: startCoord.longitude), addressDictionary: nil))
+        
+        request.destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: endCoord.latitude, longitude: endCoord.longitude), addressDictionary: nil))
+        
+        request.requestsAlternateRoutes = false
+        request.transportType = .automobile
+
+        let directions = MKDirections(request: request)
+
+        directions.calculate { [unowned self] response, error in
+            guard let unwrappedResponse = response else { return }
+
+            for route in unwrappedResponse.routes {
+                self.mapView.addOverlay(route.polyline)
+                self.mapView.setVisibleMapRect(route.polyline.boundingMapRect, animated: true)
+            }
         }
     }
 }
