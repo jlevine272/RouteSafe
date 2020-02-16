@@ -18,6 +18,19 @@
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" showsUserLocation="YES" showsTraffic="YES" translatesAutoresizingMaskIntoConstraints="NO" id="UiD-Xn-T1Q">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                             </mapView>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nXh-Be-H6T">
+                                <rect key="frame" x="338" y="58" width="46" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="30"/>
+                                <state key="normal" title="X"/>
+                                <connections>
+                                    <action selector="CancelButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="74l-KE-DEB"/>
+                                </connections>
+                            </button>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="RouteSafeCar" translatesAutoresizingMaskIntoConstraints="NO" id="CVr-ek-9Pq">
+                                <rect key="frame" x="317" y="833" width="77" height="40"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
@@ -30,12 +43,13 @@
                     </view>
                     <navigationItem key="navigationItem" id="8fp-KS-ERL"/>
                     <connections>
+                        <outlet property="cancelButton" destination="nXh-Be-H6T" id="dJS-G3-0Rt"/>
                         <outlet property="mapView" destination="UiD-Xn-T1Q" id="UG5-vo-x5h"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="161" y="190"/>
+            <point key="canvasLocation" x="160.86956521739131" y="189.50892857142856"/>
         </scene>
         <!--Location Search Table-->
         <scene sceneID="68Q-D7-Aj2">
@@ -100,4 +114,7 @@
             <point key="canvasLocation" x="-786" y="190"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="RouteSafeCar" width="394" height="340"/>
+    </resources>
 </document>

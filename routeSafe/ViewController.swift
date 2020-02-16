@@ -9,6 +9,7 @@
 import UIKit
 import MapKit
 import CoreLocation
+import Firebase
 
 protocol HandleMapSearch {
     func dropPinZoomIn(placemark:MKPlacemark)
@@ -16,13 +17,22 @@ protocol HandleMapSearch {
 
 class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate {
 
+    @IBOutlet weak var cancelButton: UIButton!
     @IBOutlet weak var mapView: MKMapView!
+    @IBAction func CancelButtonPressed(_ sender: UIButton) {
+        navigationController?.setNavigationBarHidden(false, animated: true)
+        cancelButton?.isHidden = true
+        self.mapView.removeAnnotations(self.mapView.annotations)
+        self.mapView.removeOverlays(self.mapView.overlays)
+        
+    }
     
     let locationManager = CLLocationManager()
     var selectedPin:MKPlacemark? = nil
     
     var resultSearchController:UISearchController? = nil
     var params : [[Double]] = [[0,0],[0,0]]
+    lazy var functions = Functions.functions()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,6 +43,13 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         locationManager.startUpdatingLocation()
         
         mapView.delegate = self
+        
+        cancelButton.frame = CGRect(x: 338, y: 58, width: 50, height: 50)
+        cancelButton.backgroundColor = UIColor.lightGray
+        cancelButton.layer.cornerRadius = 0.5 * cancelButton.bounds.size.width
+        cancelButton.clipsToBounds = true
+        cancelButton.setImage(UIImage(named:"thin-x-png-3.png"), for: .normal)
+        cancelButton?.isHidden = true
         
         //var stanford = CLLocation(latitude: 37.42681121826172, longitude: -122.1704330444336)
         //var cal = CLLocation(latitude: 37.8718992, longitude: -122.2585399)
@@ -61,7 +78,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     }
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         let renderer = MKPolylineRenderer(polyline: overlay as! MKPolyline)
-        renderer.strokeColor = UIColor.blue
+        renderer.strokeColor = UIColor(red: 0.0, green:122.0/255.0, blue:1.0, alpha:1.0)
         return renderer
     }
     
@@ -90,7 +107,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         print("getting directions")
         if let selectedPin = selectedPin {
             params[1][0] = selectedPin.coordinate.latitude
-            params[0][1] = selectedPin.coordinate.longitude
+            params[1][1] = selectedPin.coordinate.longitude
             let mapItem = MKMapItem(placemark: selectedPin)
             sendEndPoints(params: params)
         }
@@ -142,17 +159,26 @@ extension ViewController: HandleMapSearch {
 //MARK: - Interface with back end
 extension ViewController {
     func sendEndPoints(params: [[Double]]) {
-        print("sent")
+        print("sent \(params)")
+        var array : [Double] = []
+        functions.httpsCallable("addMessage").call(params) { (result, error)  in
+//            TODO: Parse JSON
+
+            let data: NSArray = result?.data as! NSArray // received from a network request, for example
+            print(data)
+            self.navigationController?.setNavigationBarHidden(true, animated: true)
+            self.cancelButton?.isHidden = false
+            self.mapView.removeAnnotations(self.mapView.annotations)
+            
+            self.map(points: data as! [[Double]])
+            }
         
-        
-        var result = [[[37.42681121826172, -122.1704330444336],[37.8718992, -122.2585399]],[[37.8718992, -122.2585399],[37.79467605, -122.39698655]]]
-        
-        map(points: result)
     }
-    func map(points: [[[Double]]]) {
-        for pair in points {
-            var location1 = CLLocation(latitude: pair[0][0], longitude: pair[0][1])
-            var location2 = CLLocation(latitude: pair[1][0], longitude: pair[1][1])
+    
+    func map(points: [[Double]]) {
+        for i in 0...points.count-2 {
+            let location1 = CLLocation(latitude: points[i][0], longitude: points[i][1])
+            let location2 = CLLocation(latitude: points[i+1][0], longitude: points[i+1][1])
             makeLeg(start: location1, end: location2)
         }
     }
